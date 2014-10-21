@@ -1,6 +1,6 @@
 ﻿namespace CryptSpeak.UI
 {
-    partial class Form1
+    partial class UIMessenger
     {
         /// <summary>
         /// Required designer variable.

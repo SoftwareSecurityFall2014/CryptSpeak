@@ -13,7 +13,7 @@ using CryptSpeak.Encryption;
 
 namespace CryptSpeak.UI
 {
-    public partial class Form1 : Form
+    public partial class UIMessenger : Form
     {
         //  TODO: Uncouple code
 
@@ -26,7 +26,7 @@ namespace CryptSpeak.UI
 
         int charLimit = 32;
 
-        public Form1()
+        public UIMessenger()
         {
             InitializeComponent();
             sck = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
