@@ -15,6 +15,8 @@ namespace CryptSpeak.UI
 {
     public partial class Form1 : Form
     {
+        //  TODO: Uncouple code
+
         //This has really bad coupling admittedly.
         //That will totally be fixed later or w/e
         Socket sck;
