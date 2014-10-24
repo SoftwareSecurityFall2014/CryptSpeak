@@ -9,18 +9,11 @@ namespace CryptSpeak.Encryption
     public class DESEncryptor
     {
         //Oficially using MSB as standard
-        /*      TODOS:
-         *          Take in a string and convert to a encrypted byte array
-         *          Take in a cypher string and convert it back to a string
-         *          Key needs to be 64 bit, select 56 bits, split into two
-         *              28 bit segments and rotate let "one or two bits"
-         *              each round
-        */
 
         //Keys are 8 bit
         public byte[] keySchedule;
-        //For a rotation schedule to work, they must
-        //  A. The rotations must add up to 28 for a 64 bit key
+        //For a rotation schedule to work
+        //  A. The rotations must add up to 28
         //      (In generating the key used, the last byte of the key is ignored, left with 56 bits)
         //      (This is split in half, to 28 bit halves)
         //      (Each round of the cypher, each half is circularly shifted to the left (*2))
