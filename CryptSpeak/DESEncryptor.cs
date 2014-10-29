@@ -6,23 +6,39 @@ using System.Threading.Tasks;
 
 namespace CryptSpeak.Encryption
 {
-    public class DESEncryptor
+    public class DESEncryptor : Encrytor 
     {
         //Oficially using MSB as standard
 
-        //Keys are 8 bit
         public byte[] keySchedule;
+        /*  Description of DES
+         *  Nouns:
+         *      *Key Schedule
+         *          -Key Schedule is 64 bits
+         *              ^The last 8 bits are NEVER used
+         *                  *The are apparently used as paridy bits
+         *                  *Are not necessary for the encryption
+         *              ^Each "round" of DES uses a different key
+         *                  *All of these keys are derived from the key schedule
+         *                  *Each key is 48 bits long (again derived from key schedule) 
+         *                  
+         */
         //For a rotation schedule to work
-        //  A. The rotations must add up to 28
+        //  A. The rotations DO NOT have to add up to 28, but the decryption must use the same keys
+        //      in reverse generated from the rotation schedule
         //      (In generating the key used, the last byte of the key is ignored, left with 56 bits)
         //      (This is split in half, to 28 bit halves)
         //      (Each round of the cypher, each half is circularly shifted to the left (*2))
         //      (The first 24 bits of each are added together, ignoring the 4 bits on each end
         //      (This leaves you with a 48 bit key, which is xor'd with the eselection of the message)
-        //IMPORTANT:    If any of the rotation schedule values are > 4, you will need to edit the key generating
+        //IMPORTANT:        If any of the rotation schedule values are > 4, you will need to edit the key generating
         //              function to move the nibbles (shiftval/4 to the left) and then shift bits (shiftval%4)
         //              Not emplemented yet (its a pain...)
-        public int[] rotationSchedule = {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1};
+        //SIDE-NOTE:        According to NIST, the longer the rotation schedule the better it is. I find it hard
+        //              to believe that the rotation amount per round is not a factor also, but as long as the
+        //              key is unpredictable it doesn't make much of a difference. Besides, if a hacker wanted
+        //              to find out the key rotation they could reverse engineer the program.
+        public int[] rotationSchedule = {2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1};
         //This will be a [16] [6] 2dim byte array
         //[16] is the round number the key is used in
         //[6] is th number of bytes in the key (48 bits)
@@ -58,7 +74,7 @@ namespace CryptSpeak.Encryption
             //rdm.NextBytes(keySchedule);
         }
 
-        public byte[] encryptMessage(string mes)
+        public override byte[] Encrypt(string mes)
         {
             ASCIIEncoding enc = new ASCIIEncoding();
 
@@ -104,7 +120,7 @@ namespace CryptSpeak.Encryption
         }
 
 
-        public string decryptMessage(byte[] mes)
+        public override string Decrypt(byte[] mes)
         {
             ASCIIEncoding enc = new ASCIIEncoding();
             string outStr = "";
@@ -225,6 +241,7 @@ namespace CryptSpeak.Encryption
             return ret;
         }
 
+        //For reading the text file chars as hex
         public int conCharToInt(char a)
         {
             if (a >= '0' && a <= '9')

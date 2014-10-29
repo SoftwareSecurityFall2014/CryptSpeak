@@ -72,7 +72,7 @@ namespace CryptSpeak.UI
 
                     string temp2 = keyLoc;//"C:/Users/William/Documents/Visual Studio 2012/Projects/CryptSpeak/CryptSpeak/Key1.txt";
                     DESEncryptor des2 = new DESEncryptor(temp2);
-                    string receivedMessage = des2.decryptMessage(receivedData);
+                    string receivedMessage = des2.Decrypt(receivedData);
                     
                     lbMessages.Items.Add(receivedMessage);
                     lbMessages.SelectedIndex = lbMessages.Items.Count - 1;
@@ -102,7 +102,7 @@ namespace CryptSpeak.UI
                 for (int i = 0; i < strmsg.Length / charLimit; i++)
                 {
                     string toSend = strmsg.Substring(i * charLimit, charLimit);
-                    byte[] msg = des.encryptMessage(toSend);
+                    byte[] msg = des.Encrypt(toSend);
 
                     sck.Send(msg);
 
