@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace CryptSpeak.Encryption
 {
-    public class DESEncryptor : Encrytor 
+    public class DESEncryptor : Encryptor 
     {
         //Oficially using MSB as standard
 
-        public byte[] keySchedule;
+        private byte[] keySchedule;
         /*  Description of DES
          *  Nouns:
          *      *Key Schedule
@@ -51,30 +51,19 @@ namespace CryptSpeak.Encryption
                                 {0x0F, 0x0C, 0x08, 0x02, 0x04, 0x09, 0x01, 0x07, 0x05, 0x0B, 0x03, 0x0E, 0x0A, 0x00, 0x06, 0x0D}
                               };
 
-        public DESEncryptor(string keyFile)
+        public DESEncryptor(byte[] key)
         {
-            string textinfo = System.IO.File.ReadAllText(@keyFile);
-
-            keySchedule = new byte[8];
             pregeneratedKeys = new byte[16][];
-
-            for (int i = 0; i < 16; i +=2)
-            {
-                byte val = (byte)((conCharToInt(textinfo[i]) << 4) + conCharToInt(textinfo[i + 1]));
-                keySchedule[i/2] = val;
-            }
-
-            Console.Out.WriteLine(textinfo);
-
-            GenerateKeyCycleValues();
-            //keySchedule = new byte[8];
-
-            //Random rdm = new Random();
-
-            //rdm.NextBytes(keySchedule);
+            SetKey(key);
         }
 
-        public override byte[] Encrypt(string mes)
+        public override void SetKey(byte[] key)
+        {
+            keySchedule = key;
+            GenerateKeyCycleValues();
+        }
+
+        public override byte[] Encrypt(byte[] mes)
         {
             ASCIIEncoding enc = new ASCIIEncoding();
 
@@ -83,14 +72,7 @@ namespace CryptSpeak.Encryption
             //Only instance where this would happen would be
             //      mes.Length % 4 != 0
             //Possible to just add extra spaces. I'll do that for now
-            if (mes.Length % 8 != 0)
-            {
-                for (int i = 0; i < (mes.Length % 8); i++)
-                {
-                    mes += " ";
-                }
-            }
-            byte[] mesbytes = enc.GetBytes(mes);
+            byte[] mesbytes = mes;
             byte[] outByte = new byte[mesbytes.Length];
 
             for (int i = 0; i < (mesbytes.Length/8); i++)
@@ -120,12 +102,11 @@ namespace CryptSpeak.Encryption
         }
 
 
-        public override string Decrypt(byte[] mes)
+        public override byte[] Decrypt(byte[] mes)
         {
-            ASCIIEncoding enc = new ASCIIEncoding();
-            string outStr = "";
 
             byte[] mesbytes = mes;
+            byte[] outByte = new byte[mes.Length];
 
             for (int i = 0; i < (mesbytes.Length / 8); i++)
             {
@@ -145,10 +126,13 @@ namespace CryptSpeak.Encryption
 
                 block = InvInitPerm(block);
 
-                outStr += enc.GetString(block);
+                for (int k = 0; k < 8; k++)
+                {
+                    outByte[k + (i * 8)] = block[k];
+                }
             }
 
-            return outStr;
+            return outByte;
         }
 
         public byte[] roundDES(byte[] block, int keynum)
@@ -239,25 +223,6 @@ namespace CryptSpeak.Encryption
                 ((mes[3] & 0x80) >> 7));
 
             return ret;
-        }
-
-        //For reading the text file chars as hex
-        public int conCharToInt(char a)
-        {
-            if (a >= '0' && a <= '9')
-            {
-                return (int)a - 48;
-            }
-            if (a >= 'a' && a <= 'z')
-            {
-                return (int)a - 87;
-            }
-
-            if (a >= 'A' && a <= 'Z')
-            {
-                return (int)a - 55;
-            }
-            return -1;
         }
 
         public void GenerateKeyCycleValues()

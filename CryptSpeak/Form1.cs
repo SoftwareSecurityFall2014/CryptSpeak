@@ -21,8 +21,13 @@ namespace CryptSpeak.UI
         //That will totally be fixed later or w/e
         Socket sck;
         EndPoint epLocal, epRemote;
-        DESEncryptor des;
+        //This is probably a bad idea
+        //Volatile is a bad idea
+        //I should not do this
+        //Gonna do it anyways yolo
+        volatile EncryptionManager encMan;
         volatile string keyLoc;
+        volatile string nunceLoc;
 
         int charLimit = 32;
 
@@ -38,6 +43,16 @@ namespace CryptSpeak.UI
             listBox1.Items.Add("AES");
             listBox1.Items.Add("Elliptic-Curve");
 
+            listBox2.Items.Add("ECB");
+            listBox2.Items.Add("CBC");
+            listBox2.Items.Add("CFB");
+            listBox2.Items.Add("OFB");
+            listBox2.Items.Add("CTR");
+            listBox2.Items.Add("This is how the encryption is");
+            listBox2.Items.Add("applied");
+            listBox2.Items.Add("Betta check yourself before you");
+            listBox2.Items.Add("Shrek yourself; Cause eating raw");
+            listBox2.Items.Add("onions is bad for your health");
         }
 
         //GetLocalIP
@@ -71,8 +86,7 @@ namespace CryptSpeak.UI
                     receivedData = (byte[])aResult.AsyncState;
 
                     string temp2 = keyLoc;//"C:/Users/William/Documents/Visual Studio 2012/Projects/CryptSpeak/CryptSpeak/Key1.txt";
-                    DESEncryptor des2 = new DESEncryptor(temp2);
-                    string receivedMessage = des2.Decrypt(receivedData);
+                    string receivedMessage = tbEndIP.Text + ":" + tbEndPort.Text + " - " + encMan.Decrypt(receivedData);
                     
                     lbMessages.Items.Add(receivedMessage);
                     lbMessages.SelectedIndex = lbMessages.Items.Count - 1;
@@ -91,7 +105,11 @@ namespace CryptSpeak.UI
         //button 2?
         void SendMessage(string strmsg)
         {
-            strmsg = tbYourIP.Text + ":" + tbYourPort.Text + " - " + strmsg;
+            //THAT IS A VERY BAD IDEA WHAT WAS I THINKING
+            //SO INSECURE
+            //MUCH TACKY
+            //(There is expected text in the code, leaving it there so we can be like, Oh shit look a mistake that we caught 10/10 oh baby a triple)
+            //strmsg = tbYourIP.Text + ":" + tbYourPort.Text + " - " + strmsg;
             try
             {
                 System.Text.ASCIIEncoding enc = new System.Text.ASCIIEncoding();
@@ -102,17 +120,17 @@ namespace CryptSpeak.UI
                 for (int i = 0; i < strmsg.Length / charLimit; i++)
                 {
                     string toSend = strmsg.Substring(i * charLimit, charLimit);
-                    byte[] msg = des.Encrypt(toSend);
+                    byte[] msg = encMan.Encrypt(toSend);
 
                     sck.Send(msg);
 
-                    lbMessages.Items.Add(toSend);
+                    lbMessages.Items.Add(tbYourIP.Text + ":" + tbYourPort.Text + " - " + toSend);
                 }
                 tbToSend.Clear();
             }
             catch (Exception exp)
             {
-                MessageBox.Show(exp.ToString());
+                //MessageBox.Show(exp.ToString());
             }
         }
 
@@ -143,6 +161,26 @@ namespace CryptSpeak.UI
             }
         }
 
+        void Disconnect(object sender, EventArgs e)
+        {
+            try
+            {
+                System.Text.ASCIIEncoding enc = new System.Text.ASCIIEncoding();
+                string toSend = "User has disconnected";
+                byte[] msg = encMan.Encrypt(toSend);
+
+                sck.Send(msg);
+
+                lbMessages.Items.Add(toSend);
+                tbToSend.Clear();
+            }
+            catch (Exception exp)
+            {
+                MessageBox.Show(exp.ToString());
+            }
+            sck.Close();
+        }
+
         private void btnSend_Click(object sender, EventArgs e)
         {
             SendMessage(tbToSend.Text);
@@ -151,8 +189,24 @@ namespace CryptSpeak.UI
         private void btnConnect_Click(object sender, EventArgs e)
         {
             keyLoc = tbKeyFile.Text;
-            des = new DESEncryptor(keyLoc);
+            nunceLoc = tbNunceFile.Text;
+            encMan = new EncryptionManager(keyLoc, nunceLoc, (byte)EncryptionManager.EncType.DES, (byte)EncryptionManager.EncMeth.ECB);
             Connect();
+        }
+
+        private void Disconnect()
+        {
+
+        }
+
+        private void label8_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }
