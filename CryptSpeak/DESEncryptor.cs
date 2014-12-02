@@ -104,7 +104,6 @@ namespace CryptSpeak.Encryption
 
         public override byte[] Decrypt(byte[] mes)
         {
-
             byte[] mesbytes = mes;
             byte[] outByte = new byte[mes.Length];
 

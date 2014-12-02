@@ -59,6 +59,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AESEncryptor.cs" />
     <Compile Include="DESEncryptor.cs" />
     <Compile Include="EncryptionManager.cs" />
     <Compile Include="Encryptor.cs" />

@@ -14,7 +14,7 @@ namespace CryptSpeak
         byte[] lastSend;
         byte[] lastReceive;
 
-        public enum EncType : byte { DES, AES, Elliptic };
+        public enum EncType : byte { None, DES, AES, Elliptic };
         public enum EncMeth : byte { ECB, CBC, CFB, OFB, CTR };
 
         public EncryptionManager(string keyLoc, string nunce, byte type, byte method)
@@ -33,8 +33,8 @@ namespace CryptSpeak
             if(method != (int)EncMeth.ECB)
             {
                 lastReceive = GetNunce(nunce);
-                lastSend = new byte[lastReceive.Length];
-                lastReceive.CopyTo(lastSend, 0);
+                lastSend = GetNunce(nunce);
+                
             }
         }
 
@@ -48,29 +48,44 @@ namespace CryptSpeak
             //        mes += " ";
             //    }
             //}
-            byte[] toEnc = enc.GetBytes(mes);
-            byte[] ret = null;
-            switch(strat)
+            byte[] fullMess = enc.GetBytes(mes);
+            byte[] ret = new byte[fullMess.Length];
+            for (int i = 0; i < fullMess.Length; i += 8)
             {
-                case (int)EncMeth.ECB:
-                    ret = encMethod.Encrypt(toEnc);
-                    break;
-                case (int)EncMeth.CBC:
-                    //XOR last plaintext with last sent cyphertext (or nunce)
-                    //Encrypt
-                    XOR(lastSend, toEnc).CopyTo(ret, 0);
-                    encMethod.Encrypt(ret).CopyTo(ret, 0);
-                    ret.CopyTo(lastSend, 0);
-                    break;
-                case (int)EncMeth.CFB:
-                    ret = encMethod.Encrypt(toEnc);
-                    break;
-                case (int)EncMeth.OFB:
-                    ret = encMethod.Encrypt(toEnc);
-                    break;
-                case (int)EncMeth.CTR:
-                    ret = encMethod.Encrypt(toEnc);
-                    break;
+                byte[] toEnc = new byte[8];
+                for (int j = 0; j < 8; j++)
+                {
+                    toEnc[j] = fullMess[i + j];
+                }
+                byte[] toAdd;
+                switch (strat)
+                {
+                    case (int)EncMeth.ECB:
+                        toAdd = encMethod.Encrypt(toEnc);
+                        for (int j = 0; j < 8; j++)
+                        {
+                            ret[j + i] = toAdd[j];
+                        }
+                        break;
+                    case (int)EncMeth.CBC:
+                        //XOR last plaintext with last sent cyphertext (or nunce)
+                        //Encrypt
+                        toAdd = CBCEncrypt(toEnc);
+                        for(int j = 0; j < 8; j++)
+                        {
+                            ret[j+i] = toAdd[j];
+                        }
+                        break;
+                    case (int)EncMeth.CFB:
+                        ret = encMethod.Encrypt(toEnc);
+                        break;
+                    case (int)EncMeth.OFB:
+                        ret = encMethod.Encrypt(toEnc);
+                        break;
+                    case (int)EncMeth.CTR:
+                        ret = encMethod.Encrypt(toEnc);
+                        break;
+                }
             }
             return ret;
         }
@@ -87,10 +102,8 @@ namespace CryptSpeak
                 case (int)EncMeth.CBC:
                     //Decrypt
                     //Take last received cyphered text (or nunce if first time)
-                    //XOR with Decrypt 
-                    encMethod.Decrypt(mes).CopyTo(ret, 0);
-                    XOR(lastReceive, ret).CopyTo(ret, 0);
-                    ret.CopyTo(lastReceive, 0);
+                    //XOR with Decrypt
+                    ret = CBCDecrypt(mes);
                     break;
                 case (int)EncMeth.CFB:
                     ret = encMethod.Decrypt(mes);
@@ -103,6 +116,28 @@ namespace CryptSpeak
                     break;
             }
             return enc.GetString(ret);
+        }
+
+        public byte[] CBCEncrypt(byte[] toEnc)
+        {
+            byte[] ret = encMethod.Encrypt(XOR(lastSend, toEnc));
+            for (int i = 0; i < lastSend.Length; i++)
+            {
+                lastSend[i] = ret[i];
+            }
+            return ret;
+        }
+
+        public byte[] CBCDecrypt(byte[] mes)
+        {
+            byte[] ret = XOR(lastReceive, encMethod.Decrypt(mes));
+            for (int i = 0; i < lastReceive.Length; i++)
+            {
+                ;'
+
+                lastReceive[i] = mes[i];
+            }
+            return ret;
         }
 
         public byte[] GetKey(string keyFile)

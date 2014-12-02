@@ -41,7 +41,6 @@ namespace CryptSpeak.UI
 
             listBox1.Items.Add("DES");
             listBox1.Items.Add("AES");
-            listBox1.Items.Add("Elliptic-Curve");
 
             listBox2.Items.Add("ECB");
             listBox2.Items.Add("CBC");
@@ -130,7 +129,7 @@ namespace CryptSpeak.UI
             }
             catch (Exception exp)
             {
-                //MessageBox.Show(exp.ToString());
+                MessageBox.Show(exp.ToString());
             }
         }
 
@@ -190,7 +189,7 @@ namespace CryptSpeak.UI
         {
             keyLoc = tbKeyFile.Text;
             nunceLoc = tbNunceFile.Text;
-            encMan = new EncryptionManager(keyLoc, nunceLoc, (byte)EncryptionManager.EncType.DES, (byte)EncryptionManager.EncMeth.ECB);
+            encMan = new EncryptionManager(keyLoc, nunceLoc, (byte)EncryptionManager.EncType.DES, (byte)EncryptionManager.EncMeth.CBC);
             Connect();
         }
 
