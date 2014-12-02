@@ -123,7 +123,7 @@ namespace CryptSpeak.UI
             }
             catch (Exception exp)
             {
-                MessageBox.Show(exp.ToString());
+                //MessageBox.Show(exp.ToString());
             }
         }
 
@@ -150,7 +150,7 @@ namespace CryptSpeak.UI
             }
             catch (Exception exp)
             {
-                MessageBox.Show(exp.ToString());
+                //MessageBox.Show(exp.ToString());
             }
         }
 
