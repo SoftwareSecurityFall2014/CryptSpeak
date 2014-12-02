@@ -15,16 +15,8 @@ namespace CryptSpeak.UI
 {
     public partial class UIMessenger : Form
     {
-        //  TODO: Uncouple code
-
-        //This has really bad coupling admittedly.
-        //That will totally be fixed later or w/e
         Socket sck;
         EndPoint epLocal, epRemote;
-        //This is probably a bad idea
-        //Volatile is a bad idea
-        //I should not do this
-        //Gonna do it anyways yolo
         volatile EncryptionManager encMan;
         volatile string keyLoc;
         volatile string nunceLoc;
@@ -66,7 +58,6 @@ namespace CryptSpeak.UI
             return "127.0.0.1";
         }
 
-        //MessageCallBack
         private void MessageCallBack(IAsyncResult aResult)
         {
             try
@@ -78,7 +69,7 @@ namespace CryptSpeak.UI
 
                     receivedData = (byte[])aResult.AsyncState;
 
-                    string temp2 = keyLoc;//"C:/Users/William/Documents/Visual Studio 2012/Projects/CryptSpeak/CryptSpeak/Key1.txt";
+                    string temp2 = keyLoc;
                     string receivedMessage = tbEndIP.Text + ":" + tbEndPort.Text + " - " + encMan.Decrypt(receivedData);
                     
                     lbMessages.Items.Add(receivedMessage);
@@ -91,18 +82,12 @@ namespace CryptSpeak.UI
             }
             catch (Exception exp)
             {
-                MessageBox.Show(exp.ToString());
+                //MessageBox.Show(exp.ToString());
             }
         }
 
-        //button 2?
         void SendMessage(string strmsg)
         {
-            //THAT IS A VERY BAD IDEA WHAT WAS I THINKING
-            //SO INSECURE
-            //MUCH TACKY
-            //(There is expected text in the code, leaving it there so we can be like, Oh shit look a mistake that we caught 10/10 oh baby a triple)
-            //strmsg = tbYourIP.Text + ":" + tbYourPort.Text + " - " + strmsg;
             try
             {
                 System.Text.ASCIIEncoding enc = new System.Text.ASCIIEncoding();
@@ -127,7 +112,6 @@ namespace CryptSpeak.UI
             }
         }
 
-        //Technically "button1"
         void Connect()
         {
             try
