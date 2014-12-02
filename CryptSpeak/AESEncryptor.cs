@@ -8,9 +8,11 @@ namespace CryptSpeak
 {
     public class AESEncryptor : Encryptor 
     {
-        public AESEncryptor()
-        {
+        byte[] key;
 
+        public AESEncryptor(byte[] key)
+        {
+            this.key = key;
         }
         public override byte[] Encrypt(byte[] mes)
         {

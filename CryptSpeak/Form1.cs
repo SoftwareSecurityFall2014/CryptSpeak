@@ -39,19 +39,13 @@ namespace CryptSpeak.UI
 
             btnSend.Enabled = false;
 
+            listBox1.Items.Add("None");
             listBox1.Items.Add("DES");
-            listBox1.Items.Add("AES");
 
-            listBox2.Items.Add("ECB");
             listBox2.Items.Add("CBC");
-            listBox2.Items.Add("CFB");
-            listBox2.Items.Add("OFB");
             listBox2.Items.Add("CTR");
-            listBox2.Items.Add("This is how the encryption is");
-            listBox2.Items.Add("applied");
-            listBox2.Items.Add("Betta check yourself before you");
-            listBox2.Items.Add("Shrek yourself; Cause eating raw");
-            listBox2.Items.Add("onions is bad for your health");
+            listBox2.Items.Add("ECB");
+            listBox2.Items.Add("OFB");
         }
 
         //GetLocalIP
@@ -175,7 +169,7 @@ namespace CryptSpeak.UI
             }
             catch (Exception exp)
             {
-                MessageBox.Show(exp.ToString());
+                //MessageBox.Show(exp.ToString());
             }
             sck.Close();
         }
@@ -189,7 +183,34 @@ namespace CryptSpeak.UI
         {
             keyLoc = tbKeyFile.Text;
             nunceLoc = tbNunceFile.Text;
-            encMan = new EncryptionManager(keyLoc, nunceLoc, (byte)EncryptionManager.EncType.DES, (byte)EncryptionManager.EncMeth.CBC);
+            byte TEncType = 0;
+            byte TEncMeth = 0;
+            switch(listBox1.SelectedIndex)
+            {
+                case 0:
+                    TEncType = (byte)EncryptionManager.EncType.None;
+                    break;
+                case 1:
+                    TEncType = (byte)EncryptionManager.EncType.DES;
+                    break;
+            }
+
+            switch (listBox2.SelectedIndex)
+            {
+                case 0:
+                    TEncMeth = (byte)EncryptionManager.EncMeth.CBC;
+                    break;
+                case 1:
+                    TEncMeth = (byte)EncryptionManager.EncMeth.CTR;
+                    break;
+                case 2:
+                    TEncMeth = (byte)EncryptionManager.EncMeth.ECB;
+                    break;
+                case 3:
+                    TEncMeth = (byte)EncryptionManager.EncMeth.OFB;
+                    break;
+            }
+            encMan = new EncryptionManager(keyLoc, nunceLoc, TEncType, TEncMeth);
             Connect();
         }
 
